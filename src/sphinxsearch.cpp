@@ -2077,6 +2077,7 @@ public:
 	void				Update ( const ExtHit_t * pHlist );
 	int					Finalize ( const CSphMatch & tMatch );
 	bool				IsTermSkipped ( int iTerm );
+    BYTE*               GetTextFeatures( const CSphMatch & tMatch );
 
 public:
 	/// setup per-keyword data needed to compute the factors
@@ -3836,6 +3837,14 @@ bool RankerState_Expr_fn<NEED_PACKEDFACTORS, HANDLE_DUPES>::ExtraDataImpl ( Extr
 	return true;
 }
 
+template < bool NEED_PACKEDFACTORS, bool HANDLE_DUPES >
+BYTE * RankerState_Expr_fn<NEED_PACKEDFACTORS, HANDLE_DUPES>::GetTextFeatures ( const CSphMatch & tMatch )
+{
+    assert(NEED_PACKEDFACTORS) ;
+    if (!m_tFactorPool.IsInitialized())
+      m_tFactorPool.Prealloc(GetMaxPackedLength(), m_iPoolMatchCapacity);
+    return PackFactors();
+}
 
 /// finish document processing, compute weight from factors
 template < bool NEED_PACKEDFACTORS, bool HANDLE_DUPES >
@@ -4030,6 +4039,12 @@ public:
 	{
 		this->m_tState.SetTermDupes ( hQwords, iMaxQpos, this->m_pRoot );
 	}
+
+    bool CanExportTextFeatures() { return NEED_PACKEDFACTORS; }
+
+    BYTE* GetTextFeatures( const CSphMatch & tMatch ) {
+      return ExtRanker_State_T<RankerState_Expr_fn <NEED_PACKEDFACTORS, HANDLE_DUPES>,true >::GetTextFeatures (tMatch);
+    }
 };
 
 //////////////////////////////////////////////////////////////////////////

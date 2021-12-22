@@ -137,6 +137,8 @@ public:
 	virtual void				Reset ( const ISphQwordSetup & tSetup ) = 0;
 	virtual bool				IsCache() const { return false; }
 	virtual void				FinalizeCache ( const ISphSchema & ) {}
+    virtual BYTE*				GetTextFeatures ( const CSphMatch & tMatch ) {}
+    virtual bool				CanExportTextFeatures () { return false; }
 };
 
 /// factory

@@ -6713,6 +6713,21 @@ static void PerformFullTextSearch ( const RtSegVec_c & dRamChunks, RtQwordSetup_
 	}
 }
 
+static void DumpScore(ISphRanker& pRanker, int iMatchPoolSize) {
+
+  const auto iMatches = pRanker.GetMatches();
+  auto* pMatches = pRanker.GetMatchesBuffer();
+  auto count = std::min(iMatches, iMatchPoolSize);
+
+  for (auto i=0; i<count; i++ )
+  {
+    CSphMatch & tMatch = pMatches[i];
+//    BYTE* feature = pRanker.GetTextFeatures(tMatch);
+//    pRanker->ExtraData ( EXTRA_SET_MATCHPOPPED, (void**)&dJustPopped );
+//    tMatch.SetAttr()
+
+  }
+}
 
 static bool DoFullTextSearch ( const RtSegVec_c & dRamChunks, const ISphSchema & tMaxSorterSchema, const CSphQuery & tQuery, const char * szIndexName, int iIndexWeight, int iMatchPoolSize, int iStackNeed, RtQwordSetup_t & tTermSetup, QueryProfile_c * pProfiler, CSphQueryContext & tCtx, VecTraits_T<ISphMatchSorter*> & dSorters, XQQuery_t & tParsed, CSphQueryResultMeta & tMeta, ISphMatchSorter * pSorter )
 {
@@ -6764,6 +6779,10 @@ static bool DoFullTextSearch ( const RtSegVec_c & dRamChunks, const ISphSchema &
 	//////////////////////
 	// copying match's attributes to external storage in result set
 	//////////////////////
+
+    if(pRanker->CanExportTextFeatures()) {
+      DumpScore(*pRanker, iMatchPoolSize);
+    }
 
 	SwitchProfile ( pProfiler, SPH_QSTATE_FINALIZE );
 	pRanker->FinalizeCache ( tMaxSorterSchema );
